@@ -16,12 +16,12 @@ app.config['UPLOAD_FOLDER'] = 'static/temp/'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 Bootstrap(app)
 
-  
-
 
 @app.route('/')
 def root():
-    return "Welcome!" 
+    createTableBooks()
+    createTableUsers()
+    return redirect('/login') 
 
 
 @app.route('/login', methods=['GET','POST'])
@@ -83,9 +83,7 @@ def register():
             ERROR = True
         con.commit()
         con.close()
-        
-        print('printing users db')
-        printDB('users')
+
 
     # if ERROR:
         # return render_template('register.html', success=SUCCESS, error=ERROR)
@@ -114,11 +112,13 @@ def buy_one(bid):
 
 @app.route('/buy_one/<incoming>/success')
 def buy_successful(incoming):
+    credit_one_that_is_author = False
     arr = incoming.split('-')
     bid, bp = arr[0], float(arr[1]) #use bp, bp is gas fee from listing
 
     one_book = list_to_listdict(query_one_record('books', 'book_id', bid))[0]
 
+    init_owner = get_last_owner(bid)
     before_owner= one_book['bco']
     
     update_owner = f'''UPDATE books
@@ -131,10 +131,10 @@ def buy_successful(incoming):
     con.close()
     
     book_price = float(get_book_price(bid))
-    curr_owner_curr_wallet_balance = float(get_curr_balance(session['USER']))
-    curr_owner_updated_balance = curr_owner_curr_wallet_balance - book_price
+    gf = bp-book_price
 
-    
+    curr_owner_curr_wallet_balance = float(get_curr_balance(session['USER']))
+    curr_owner_updated_balance = curr_owner_curr_wallet_balance - (book_price+gf)
     cur_owner_update_user_wallet = f'''UPDATE users
     SET cur_balance='{curr_owner_updated_balance}'
     WHERE user_username='{session['USER']}'
@@ -144,8 +144,33 @@ def buy_successful(incoming):
     con.commit()
     con.close()
 
-    last_owner_curr_wallet_balance = float(get_curr_balance(get_last_owner(bid)))
-    last_owner_updated_balance = last_owner_curr_wallet_balance + book_price
+    author_amt = 0
+    new_person_amt = 0
+    LAST_OWNER = get_last_owner(bid)
+    AUTHOR = get_book_author(bid)
+
+    loyalty = 0.1 * book_price
+    first_mint_fee = 0
+    seller_gets = 0.9 * book_price
+
+    if init_owner == "None":
+        loyalty = 0
+        first_mint_fee = 0.05 * book_price
+        seller_gets = book_price
+
+    updated_author_balance = float(get_curr_balance(AUTHOR)) + loyalty - first_mint_fee
+    deduct_mint_fee_from_author = f'''UPDATE users
+    SET cur_balance='{updated_author_balance}'
+    WHERE user_username='{AUTHOR}'
+    '''
+    con,cur = create_userdb_connection()
+    cur.execute(deduct_mint_fee_from_author)
+    con.commit()
+    con.close()
+
+    
+    last_owner_curr_wallet_balance = float(get_curr_balance(LAST_OWNER))
+    last_owner_updated_balance = last_owner_curr_wallet_balance + seller_gets
     
     last_owner_update_user_wallet = f'''UPDATE users
     SET cur_balance='{last_owner_updated_balance}'
@@ -156,9 +181,9 @@ def buy_successful(incoming):
     con.commit()
     con.close()
     
-    update_admin_balance(bp-book_price)
+    update_admin_balance_by(gf+first_mint_fee)
 
-
+    unsetListedBySelf(bid)
 
     ADDED=True
     
@@ -173,6 +198,48 @@ def buy_successful(incoming):
 def sell_from_library():
     all_books = list_to_listdict(query_all_records_self_that_can_be_sold('books'))
     return render_template('sell_from_library.html', all_books=all_books)
+
+
+@app.route('/sell_one/<bid>')
+def sell_one(bid):
+    one_book = list_to_listdict(query_one_record('books', 'book_id', bid))[0]
+    return render_template('sell_one.html', one_book=one_book)
+
+
+@app.route('/sell_one/<incoming>/success')
+def sell_successful(incoming):
+    bid, speed, set_price = incoming.split('-')
+
+    if speed == 'fast':
+        deduct = 0.02 * float(set_price)
+    else:
+        deduct = 0.01 * float(set_price)
+
+    update_price = f'''UPDATE books
+    SET book_price='{set_price}'
+    WHERE book_id={bid};
+    '''
+    
+    con, cur = create_booksdb_connection()
+    cur.execute(update_price)
+    con.commit()
+    con.close()
+
+    update_admin_balance_by(deduct)
+
+    curr_owner_updated_balance = float(get_curr_balance(session['USER'])) - deduct
+    cur_owner_update_user_wallet = f'''UPDATE users
+    SET cur_balance='{curr_owner_updated_balance}'
+    WHERE user_username='{session['USER']}'
+    '''
+    con,cur = create_userdb_connection()
+    cur.execute(cur_owner_update_user_wallet)
+    con.commit()
+    con.close()
+
+    setListedBySelf(bid)
+
+    return render_template('sell_successful.html')
 
 
 @app.route('/sell_main')
@@ -193,7 +260,7 @@ def list_new():
         name = request.form['name']
         desc = request.form['desc']
         price = request.form['price']
-        speed = request.form['speed']
+        # speed = request.form['speed']
         image = request.files['img']
         image.save(app.config['UPLOAD_FOLDER'] + image.filename)
 
@@ -204,16 +271,15 @@ def list_new():
             "book_desc" : desc,
             "current_owner": session['USER'],
             "last_owner": None,
-            "author" : None,
+            "author" : session['USER'],
             "image_path" : image.filename,
             "upload_date" : str(datetime.now()),
-            # "speed": speed
         }
 
         ins = f"""INSERT INTO books VALUES (
         {item['b_id']}, "{item['book_name']}", "{item['book_price']}",
         "{item['book_desc']}", "{item['current_owner']}","{item['last_owner']}","{item['author']}", 
-        "{item['image_path']}", "{item['upload_date']}"        
+        "{item['image_path']}", "{item['upload_date']}", 'None' , 'None' , 'None', 'None', 'None'    
         )"""
         
         con, cur = create_booksdb_connection()
@@ -221,27 +287,27 @@ def list_new():
         con.commit()
         con.close()
 
-        goes_to_admin = round((2.5/100) * float(price) if speed=="fast" else (1.5/100) * float(price),4)
-        update_admin_balance(goes_to_admin)
+        setListedBySelf(item['b_id'])
+        # goes_to_admin = round((2.5/100) * float(price) if speed=="fast" else (1.5/100) * float(price),4)
+        # update_admin_balance_by(goes_to_admin)
 
-        curr_owner_updated_balance = float(get_curr_balance(session['USER'])) - goes_to_admin
-        cur_owner_update_user_wallet = f'''UPDATE users
-        SET cur_balance='{curr_owner_updated_balance}'
-        WHERE user_username='{session['USER']}'
-        '''
-        con,cur = create_userdb_connection()
-        cur.execute(cur_owner_update_user_wallet)
-        con.commit()
-        con.close()
+        # curr_owner_updated_balance = float(get_curr_balance(session['USER'])) - goes_to_admin
+        # cur_owner_update_user_wallet = f'''UPDATE users
+        # SET cur_balance='{curr_owner_updated_balance}'
+        # WHERE user_username='{session['USER']}'
+        # '''
+        # con,cur = create_userdb_connection()
+        # cur.execute(cur_owner_update_user_wallet)
+        # con.commit()
+        # con.close()
        
     
     return render_template('list_new.html', display= POST)
 
 
-
 @app.route('/library')
 def library():
-    all_books = list_to_listdict(query_all_records_self_that_can_be_sold('books'))
+    all_books = list_to_listdict(query_all_my_bought_and_borrowed())
     return render_template('library.html', all_books=all_books, users_name=getUsersFullName(session['USER']))
     
 
@@ -287,16 +353,236 @@ def add_balance():
         return render_template("add_balance.html", given=False)
 
 
-
-
-
 @app.route('/admin_balance')
 def admin_balance():
-    return f"{round(float(get_curr_balance('admin')), 4)}"
+    return render_template('admin_wallet.html',balance= f"{round(float(get_curr_balance('admin')), 4)}")
+
+
+@app.route('/loan_main')
+def loan_main():
+    all_books = list_to_listdict(query_all_records_self_that_can_be_sold('books'))
+    return render_template('loan_main.html', all_books=all_books)
+
+
+@app.route('/loan_one/<bid>')
+def loan_one(bid):
+    one_book = list_to_listdict(query_one_record('books', 'book_id', bid))[0]
+    return render_template('loan_one.html', one_book=one_book)
+
+
+@app.route('/loan_one/<incoming>/success')
+def loan_one_success(incoming):
+    bid, loan_price, loan_period = incoming.split('-')
+    setLoanListed(bid)
+    set_loan_period(bid, loan_period)
+    set_loan_price(bid, loan_price)
+    return render_template('loan_successful.html')
+
+
+@app.route('/borrow_main')
+def borrow_main():
+    all_books = list_to_listdict(query_all_that_can_be_borrowed())
+    return render_template('borrow_main.html', all_books=all_books)
+
+
+@app.route('/borrow_one/<incoming>/success')
+def borrow_one_success(incoming):
+    
+    bid, borrow_price, borrow_period = incoming.split('-')
+    unsetLoanListed(bid)
+    setBorrowed(bid)
+    borrow_price = float(borrow_price)
+    gf = (2.5/100) * borrow_price
+
+    one_book = list_to_listdict(query_one_record('books', 'book_id', bid))[0]
+    init_owner = get_last_owner(bid)
+    before_owner= one_book['bco']
+    update_owner = f'''UPDATE books
+    SET current_owner='{session['USER']}',last_owner='{before_owner}'
+    WHERE book_id={bid};
+    '''
+    con, cur = create_booksdb_connection()
+    cur.execute(update_owner)
+    con.commit()
+    con.close()
+
+    curr_owner_curr_wallet_balance = float(get_curr_balance(session['USER']))
+    curr_owner_updated_balance = curr_owner_curr_wallet_balance - (borrow_price+gf)
+    cur_owner_update_user_wallet = f'''UPDATE users
+    SET cur_balance='{curr_owner_updated_balance}'
+    WHERE user_username='{session['USER']}'
+    '''
+    con,cur = create_userdb_connection()
+    cur.execute(cur_owner_update_user_wallet)
+    con.commit()
+    con.close()
+
+    AUTHOR = get_book_author(bid)
+    updated_author_balance = float(get_curr_balance(AUTHOR)) + (0.05*borrow_price)
+    deduct_mint_fee_from_author = f'''UPDATE users
+    SET cur_balance='{updated_author_balance}'
+    WHERE user_username='{AUTHOR}'
+    '''
+    con,cur = create_userdb_connection()
+    cur.execute(deduct_mint_fee_from_author)
+    con.commit()
+    con.close()
+
+    LAST_OWNER = get_last_owner(bid)
+    last_owner_curr_wallet_balance = float(get_curr_balance(LAST_OWNER))
+    last_owner_updated_balance = last_owner_curr_wallet_balance + borrow_price - gf
+    
+    last_owner_update_user_wallet = f'''UPDATE users
+    SET cur_balance='{last_owner_updated_balance}'
+    WHERE user_username='{LAST_OWNER}'
+    '''
+    con,cur = create_userdb_connection()
+    cur.execute(last_owner_update_user_wallet)
+    con.commit()
+    con.close()
+    
+    update_admin_balance_by(2*gf)
+
+
+    return render_template('borrow_successful.html')
+
+
+@app.route('/all_borrowed')
+def all_borrowed():
+    all_books = list_to_listdict(queryAllBorrowed())
+    return render_template('all_borrowed.html', all_books=all_books)
+    
+    
+@app.route('/wishlist')
+def wishlist():
+    all_books = list_to_listdict(query_all_records_others('books'))
+    return render_template('wishlist.html', all_books=all_books)
 
 
 
-def update_admin_balance(amount):
+
+
+def queryAllBorrowed():
+    con, cur = create_booksdb_connection()
+    cur.execute(f"""SELECT * FROM books
+    WHERE current_owner='{session['USER']}' 
+    AND is_borrowed='True'
+    """)
+    results= cur.fetchall()
+    con.commit()
+    con.close()
+    return results
+
+
+def setBorrowed(bid):
+    cmd = f'''UPDATE books
+    SET is_borrowed='True'
+    WHERE book_id={bid};
+    '''
+    con, cur = create_booksdb_connection()
+    cur.execute(cmd)
+    con.commit()
+    con.close()
+
+
+def unsetBorrowed(bid):
+    cmd = f'''UPDATE books
+    SET is_borrowed='None'
+    WHERE book_id={bid};
+    '''
+    con, cur = create_booksdb_connection()
+    cur.execute(cmd)
+    con.commit()
+    con.close()
+
+
+def set_loan_price(bid, loan_price):
+    cmd = f'''UPDATE books
+    SET loan_price='{loan_price}'
+    WHERE book_id={bid};
+    '''
+    con, cur = create_booksdb_connection()
+    cur.execute(cmd)
+    con.commit()
+    con.close()
+
+
+def set_loan_period(bid, period):
+    cmd = f'''UPDATE books
+    SET loan_period='{period}'
+    WHERE book_id={bid};
+    '''
+    con, cur = create_booksdb_connection()
+    cur.execute(cmd)
+    con.commit()
+    con.close()
+
+#query all loan listed books. TBC, create new route side menu
+def list_loaned_out():
+    con, cur = create_booksdb_connection()
+    cur.execute(f"""SELECT * FROM books 
+    WHERE current_owner='{session['USER']}' 
+    AND loan_listed='True'
+    """)
+    results= cur.fetchall()
+    con.commit()
+    con.close()
+    return results
+
+
+def setLoanListed(bid):
+    cmd = f'''UPDATE books
+    SET loan_listed='True'
+    WHERE book_id={bid};
+    '''
+    con, cur = create_booksdb_connection()
+    cur.execute(cmd)
+    con.commit()
+    con.close()
+
+def unsetLoanListed(bid):
+    cmd = f'''UPDATE books
+    SET loan_listed='None'
+    WHERE book_id={bid};
+    '''
+    con, cur = create_booksdb_connection()
+    cur.execute(cmd)
+    con.commit()
+    con.close()
+
+
+def setListedBySelf(bid):
+    cmd = f'''UPDATE books
+    SET listed='True'
+    WHERE book_id={bid};
+    '''
+    con, cur = create_booksdb_connection()
+    cur.execute(cmd)
+    con.commit()
+    con.close()
+
+
+def unsetListedBySelf(bid):
+    cmd = f'''UPDATE books
+    SET listed='None'
+    WHERE book_id={bid};
+    '''
+    con, cur = create_booksdb_connection()
+    cur.execute(cmd)
+    con.commit()
+    con.close()
+
+
+def get_book_author(bid):
+    con, cur = create_booksdb_connection()
+    cur.execute(f"SELECT author_name FROM books WHERE book_id='{bid}'")
+    answer = cur.fetchall()[0][0]
+    con.commit()
+    con.close()
+    return answer
+
+
+def update_admin_balance_by(amount):
     old_balance= float(get_curr_balance('admin'))
     incoming = float(amount)
     admin_updated_balance = old_balance + incoming
@@ -310,7 +596,6 @@ def update_admin_balance(amount):
     con.close()
 
 
-
 def get_last_owner(bid):
     con, cur = create_booksdb_connection()
     cur.execute(f"SELECT last_owner FROM books WHERE book_id='{bid}'")
@@ -320,7 +605,6 @@ def get_last_owner(bid):
     return answer
 
 
-
 def get_book_price(bid):
     con, cur = create_booksdb_connection()
     cur.execute(f"SELECT book_price FROM books WHERE book_id='{bid}'")
@@ -328,8 +612,6 @@ def get_book_price(bid):
     con.commit()
     con.close()
     return answer
-
-
 
 
 def get_curr_balance(username):
@@ -363,7 +645,12 @@ def createTableBooks():
     last_owner TEXT,
     author_name TEXT,
     image_path TEXT,
-    upload_date TEXT    
+    upload_date TEXT,
+    listed TEXT,
+    loan_listed TEXT DEFAULT "None",
+    loan_period TEXT,   
+    loan_price TEXT,
+    is_borrowed TEXT DEFAULT "None"
     )'''
     cur.execute(cmd_create_books)
     con.commit()
@@ -403,7 +690,6 @@ def printDB(tableName):
         con, cur = create_booksdb_connection()
     elif tableName == 'users':
         con, cur = create_userdb_connection()
-    print(f'PRINTING {tableName} DB')
     cur.execute(f"SELECT * FROM {tableName}")
     results = cur.fetchall()
     con.commit()
@@ -412,7 +698,7 @@ def printDB(tableName):
 
 
 def list_to_listdict(lst):
-    keys = ['bid', 'bname', 'bprice', 'bdesc', 'bco', 'blo','bauthor','bip','bud']
+    keys = ['bid', 'bname', 'bprice', 'bdesc', 'bco', 'blo','bauthor','bip','bud','blisted','bloanlisted','bloanperiod','bloanprice','is_borrowed']
     main = []
     for b in lst:
         bd = {}
@@ -428,7 +714,38 @@ def query_all_records_others(tableName):
     elif tableName == 'users':
         con, cur = create_userdb_connection()
 
-    cur.execute(f"SELECT * FROM {tableName} WHERE NOT current_owner='{session['USER']}'")
+    cur.execute(f"""SELECT * FROM {tableName} 
+    WHERE NOT current_owner='{session['USER']}'
+    AND listed='True'
+    """)
+    results= cur.fetchall()
+    con.commit()
+    con.close()
+    return results
+
+
+def query_all_that_can_be_borrowed():
+    con, cur = create_booksdb_connection()
+    cur.execute(f"""SELECT * FROM books
+    WHERE NOT current_owner='{session['USER']}' 
+    AND loan_listed='True'
+    AND is_borrowed='None'
+    """)
+    results= cur.fetchall()
+    con.commit()
+    con.close()
+    return results
+
+
+def query_all_my_bought_and_borrowed():
+    con, cur = create_booksdb_connection()
+    cur.execute(f"""SELECT * FROM books 
+    WHERE current_owner='{session['USER']}' 
+    AND NOT last_owner='None'
+    AND listed='None'
+    AND loan_listed='None'
+    AND is_borrowed='True'
+    """)
     results= cur.fetchall()
     con.commit()
     con.close()
@@ -441,7 +758,13 @@ def query_all_records_self_that_can_be_sold(tableName):
     elif tableName == 'users':
         con, cur = create_userdb_connection()
 
-    cur.execute(f"SELECT * FROM {tableName} WHERE current_owner='{session['USER']}' AND NOT last_owner='None'")
+    cur.execute(f"""SELECT * FROM {tableName} 
+    WHERE current_owner='{session['USER']}' 
+    AND NOT last_owner='None'
+    AND listed='None'
+    AND loan_listed='None'
+    AND is_borrowed='None'
+    """)
     results= cur.fetchall()
     con.commit()
     con.close()
@@ -450,11 +773,15 @@ def query_all_records_self_that_can_be_sold(tableName):
 
 def fetch_all_listed_books():
     con, cur = create_booksdb_connection()
-    cur.execute(f"SELECT * FROM books WHERE current_owner='{session['USER']}' AND last_owner='None'")
+    cur.execute(f"""SELECT * FROM books 
+    WHERE current_owner='{session['USER']}' 
+    AND (listed='True' OR loan_listed='True')
+    """)
     results= cur.fetchall()
     con.commit()
     con.close()
     return results
+    # AND last_owner='None'
 
 
 def query_one_record(tableName, key, value):
@@ -463,7 +790,6 @@ def query_one_record(tableName, key, value):
     elif tableName == 'users':
         con, cur = create_userdb_connection()
 
-    print(f"SELECT * FROM {tableName} WHERE {key}={value};")
     cur.execute(f"SELECT * FROM {tableName} WHERE {key}={value};")
     results = cur.fetchall()
     con.commit()
@@ -486,6 +812,6 @@ def create_userdb_connection():
 if __name__ == "__main__":
     createTableBooks()
     createTableUsers()
-    app.run(debug=False, port='0.0.0.0')
+    app.run(debug=True)
 
    

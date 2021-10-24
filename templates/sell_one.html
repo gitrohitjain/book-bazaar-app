@@ -17,7 +17,8 @@
 
     <!-- Custom styles for this template-->
     <link href="{{ url_for('static', filename='css/main.css')}}" rel="stylesheet">
-    <script src="{{ url_for('static', filename='js/buy_list.js')}}"></script>
+    <!-- <script src="{{ url_for('static', filename='js/buy_list.js')}}"></script> -->
+    <!-- <script src="../static/js/sb-admin-2.js"></script> -->
 
 </head>
 
@@ -58,14 +59,14 @@
 
             <!-- Nav Item - Charts -->
             <li class="nav-item">
-                <a class="nav-link" href="buy_list">
+                <a class="nav-link" href="../buy_list">
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>Buy</span></a>
             </li>
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a class="nav-link" href="sell_main">
+                <a class="nav-link" href="../sell_main">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Sell</span></a>
             </li>
@@ -181,72 +182,93 @@
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
+
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h1 mb-4 text-gray-800 text-center">All currently listed books
-                        <h1>
-                            <!-- <div class="row">
+                    <h1 class="h1 mb-4 text-gray-800 text-center">Sell existing book</h1>
+                    <div class="row">
                         <div class="col-lg-4 offset-lg-9">
-                            <h6>Price</h6>
-                        </div>
-                    </div> -->
-                            <hr class="sidebar-divider"> {% for book in all_books %}
-                            <div class="row">
-
-                                <div class="col-lg-1 offset-lg-1">
-                                    <div class="card shadow mb-4">
-                                        <img src="../static/temp/{{book['bip']}}" alt="Not found">
-                                    </div>
-                                </div>
-                                <div class="col-lg-4 offset-lg-1">
-                                    <div class="row">
-                                        <h6 class="modal-title font-weight-bold text-primary">
-                                            {{book['bname']}}
-                                        </h6>
-                                    </div>
-                                    <div class="row">
-                                        <h6 class="modal-footer">
-                                            {{book['bdesc']}}
-                                        </h6>
-                                    </div>
-                                </div>
-
-                                <!-- <div class="col-lg-1 offset-lg-1">
-                            <h6 class="modal-title font-weight-bold text-primary">
-                                {{book['bprice']}}
-                            </h6>
-                        </div> -->
-
-                                <div class="col-lg-1 offset-lg-3">
-                                    <div class="card shadow mb-4">
-                                        <button class="btn btn-primary btn-user btn-block" value="{{book['bid']}}" onclick="myfunction(this.value)">
-                                    Read
-                                </button>
-                                    </div>
-                                    <!-- <div class="card shadow mb-4">
-                                <a href="index" class="btn btn-primary btn-user btn-block" onclick="">
-                                    Add to Wishlist
-                                </a>
-                            </div> -->
-                                </div>
-
-                            </div>
-                            <hr class="sidebar-divider"> {% endfor %}
-                            <!-- /.container-fluid -->
-
-                </div>
-                <!-- End of Main Content -->
-
-                <!-- Footer -->
-                <footer class="sticky-footer bg-white">
-                    <div class="container my-auto">
-                        <div class="copyright text-center my-auto">
-                            <span>Copyright &copy; Rohit 2021</span>
+                            <h6>You had bought this book for</h6>
                         </div>
                     </div>
-                </footer>
-                <!-- End of Footer -->
+                    <hr class="sidebar-divider">
+                    <div class="row">
+
+                        <div class="col-lg-1 offset-lg-1">
+                            <div class="card shadow mb-4">
+                                <!-- <img src="static/temp/hpg.jpg" alt="Not found"> -->
+                                <img src="../static/temp/{{one_book['bip']}}">
+                            </div>
+                        </div>
+                        <div class="col-lg-5 offset-lg-1">
+                            <div class="row">
+                                <h6 class="modal-title font-weight-bold text-primary">
+                                    {{one_book['bname']}}
+                                </h6>
+                            </div>
+                            <div class="row">
+                                <h6 class="modal-footer">
+                                    {{one_book['bdesc']}}
+                                </h6>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-1 offset-lg-1">
+                            <h6 id="mahbookprice" class="modal-title font-weight-bold text-primary">
+                                {{one_book['bprice']}}
+                            </h6>
+                        </div>
+
+                    </div>
+                    <hr class="sidebar-divider">
+                    <div class="row text-center">
+                        <div class="col-lg-3 offset-lg-5 ">
+                            <form action="" class="user" id="formm">
+
+                                <div class="form-group">
+
+                                    <input type="text" name='price' class="form-control form-control-user" id="setted_price" placeholder="Set selling price for book" required>
+                                </div>
+                                <div class="text-center text-primary"> Transaction speed </div>
+
+                                <input type="radio" id="defaultCheck1" name="speed" value="fast" onclick="SellOneUpdateFunction_Fast()" required>
+                                <label for="defaultCheck1">
+                                    Fast 
+                                </label>
+                                <br>
+                                <input type="radio" id="defaultCheck2" name="speed" value="slow" onclick="SellOneUpdateFunction_Slow()" required>
+                                <label for="defaultCheck2">
+                                    Slow
+                                </label>
+
+                                <!-- <input class="btn btn-primary btn-user btn-block " type="submit " value="Recharge "> -->
+                                <br>
+                                <br>
+                                <p id="godd1" class="text-center text-gray-800"></p>
+                                <p id="godd2" class="text-center text-primary"></p>
+                                <hr>
+                                <!-- <input class="btn btn-primary btn-user btn-block" type="submit" value="List Now"> -->
+                            </form>
+                        </div>
+
+                    </div>
+
+                    <div class="row ">
+                        <div class="col-lg-3 offset-lg-5 ">
+                            <div class="card shadow mb-4 ">
+                                <button class="btn btn-primary btn-user btn-block" value="{{one_book['bid']}}" onclick="sell_now(this.value)">
+                                    List Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- /.container-fluid -->
+
+                </div>
+
+                <!-- End of Main Content -->
 
             </div>
             <!-- End of Content Wrapper -->
@@ -255,24 +277,24 @@
         <!-- End of Page Wrapper -->
 
         <!-- Scroll to Top Button-->
-        <a class="scroll-to-top rounded" href="#page-top">
-            <i class="fas fa-angle-up"></i>
+        <a class="scroll-to-top rounded " href="#page-top ">
+            <i class="fas fa-angle-up "></i>
         </a>
 
         <!-- Logout Modal-->
-        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
+        <div class="modal fade " id="logoutModal " tabindex="-1 " role="dialog " aria-labelledby="exampleModalLabel " aria-hidden="true ">
+            <div class="modal-dialog " role="document ">
+                <div class="modal-content ">
+                    <div class="modal-header ">
+                        <h5 class="modal-title " id="exampleModalLabel ">Ready to Leave?</h5>
+                        <button class="close " type="button " data-dismiss="modal " aria-label="Close ">
+                            <span aria-hidden="true ">×</span>
+                        </button>
                     </div>
-                    <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <a class="btn btn-primary" href="login">Logout</a>
+                    <div class="modal-body ">Select "Logout " below if you are ready to end your current session.</div>
+                    <div class="modal-footer ">
+                        <button class="btn btn-secondary " type="button " data-dismiss="modal ">Cancel</button>
+                        <a class="btn btn-primary " href="login ">Logout</a>
                     </div>
                 </div>
             </div>
@@ -280,21 +302,20 @@
 
 
         <!-- Bootstrap core JavaScript-->
-        <script src="../static/vendor/jquery/jquery.min.js"></script>
-        <script src="../static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="../../static/js/jquery.min.js "></script>
+
+        <script type="text/javascript " src="../../static/vendor/bootstrap/js/bootstrap.bundle.min.js "></script>
 
         <!-- Core plugin JavaScript-->
-        <script src="../static/vendor/jquery-easing/jquery.easing.min.js"></script>
+        <script type="text/javascript " src="../../static/vendor/jquery-easing/jquery.easing.min.js "></script>
 
 
-        <script src="../static/js/sb-admin-2.js"></script>
+        <script type="text/javascript " src="../../static/js/sb-admin-2.js "></script>
+        <script type="text/javascript " src="../../static/js/buy_list.js "></script>
 
-        <!-- Page level plugins -->
-        <script src="../static/vendor/chart.js/Chart.min.js"></script>
 
-        <!-- Page level custom scripts -->
-        <script src="../static/js/demo/chart-area-demo.js"></script>
-        <script src="../static/js/demo/chart-pie-demo.js"></script>
+
+
 </body>
 
 </html>

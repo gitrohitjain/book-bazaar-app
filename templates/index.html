@@ -32,10 +32,12 @@
 
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index">
+
                 <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-laugh-wink"></i>
+                    <i class="fas fa-book"></i>
                 </div>
                 <div class="sidebar-brand-text mx-3">Book bazaar</div>
+
             </a>
 
             <!-- Divider -->
@@ -73,14 +75,14 @@
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a class="nav-link" href="index">
+                <a class="nav-link" href="loan_main">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Loan</span></a>
             </li>
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a class="nav-link" href="index">
+                <a class="nav-link" href="borrow_main">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Lend</span></a>
             </li>
@@ -131,34 +133,34 @@
                             <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-search fa-fw"></i>
                             </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
-                                <form class="form-inline mr-auto w-100 navbar-search">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-primary" type="button">
-                                                <i class="fas fa-search fa-sm"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
                         </li>
+
+                        <!-- Nav Item - Messages -->
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="wishlist">
+                                <i class="fas fa-heart fa-fw fa-2x"></i>
+                                <span class="badge badge-danger badge-counter">Wishlist</span>
+                            </a>
+                        </li>
+
+                        <div class="topbar-divider d-none d-sm-block"></div>
 
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{users_name}}</span>
-                                <img class="img-profile rounded-circle" src="static/img/undraw_profile.svg">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{session['USER']}}</span>
+                                <img class="img-profile rounded-circle" src="../static/img/undraw_profile.svg">
                             </a>
-
+                            <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                                 <a class="dropdown-item" href="library">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i> Library
                                 </a>
                                 <a class="dropdown-item" href="all_listed_books">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i> My Listing
+                                </a>
+                                <a class="dropdown-item" href="all_borrowed">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i> Borrowed
                                 </a>
                                 <a class="dropdown-item" href="mywallet">
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i> Wallet

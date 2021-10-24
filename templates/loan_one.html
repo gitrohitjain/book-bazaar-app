@@ -17,7 +17,8 @@
 
     <!-- Custom styles for this template-->
     <link href="{{ url_for('static', filename='css/main.css')}}" rel="stylesheet">
-    <script src="{{ url_for('static', filename='js/buy_list.js')}}"></script>
+    <!-- <script src="{{ url_for('static', filename='js/buy_list.js')}}"></script> -->
+    <!-- <script src="../static/js/sb-admin-2.js"></script> -->
 
 </head>
 
@@ -42,7 +43,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
-                <a class="nav-link" href="index">
+                <a class="nav-link" href="../index">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
@@ -58,28 +59,28 @@
 
             <!-- Nav Item - Charts -->
             <li class="nav-item">
-                <a class="nav-link" href="buy_list">
+                <a class="nav-link" href="../buy_list">
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>Buy</span></a>
             </li>
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a class="nav-link" href="sell_main">
+                <a class="nav-link" href="../sell_main">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Sell</span></a>
             </li>
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a class="nav-link" href="loan_main">
+                <a class="nav-link" href="../loan_main">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Loan</span></a>
             </li>
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a class="nav-link" href="borrow_main">
+                <a class="nav-link" href="../borrow_main">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Lend</span></a>
             </li>
@@ -181,72 +182,96 @@
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
+
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h1 mb-4 text-gray-800 text-center">All currently listed books
-                        <h1>
-                            <!-- <div class="row">
+                    <h2 class="h2 mb-4 text-gray-800 text-center">Loan your book</h2>
+                    <!-- <div class="row">
                         <div class="col-lg-4 offset-lg-9">
-                            <h6>Price</h6>
+                            <h6>You had bought this book for</h6>
                         </div>
+                    
                     </div> -->
-                            <hr class="sidebar-divider"> {% for book in all_books %}
+                    <br>
+                    <hr class="sidebar-divider">
+                    <div class="row">
+
+                        <div class="col-lg-1 offset-lg-5">
+                            <div class="card shadow mb-4">
+                                <!-- <img src="static/temp/hpg.jpg" alt="Not found"> -->
+                                <img src="../static/temp/{{one_book['bip']}}">
+                            </div>
+                        </div>
+                        <div class="col-lg-5 offset-lg-1">
                             <div class="row">
+                                <h6 class="modal-title font-weight-bold text-primary">
+                                    {{one_book['bname']}}
+                                </h6>
+                            </div>
+                            <div class="row">
+                                <h6 class="modal-footer">
+                                    {{one_book['bdesc']}}
+                                </h6>
+                            </div>
+                        </div>
 
-                                <div class="col-lg-1 offset-lg-1">
-                                    <div class="card shadow mb-4">
-                                        <img src="../static/temp/{{book['bip']}}" alt="Not found">
-                                    </div>
-                                </div>
-                                <div class="col-lg-4 offset-lg-1">
-                                    <div class="row">
-                                        <h6 class="modal-title font-weight-bold text-primary">
-                                            {{book['bname']}}
-                                        </h6>
-                                    </div>
-                                    <div class="row">
-                                        <h6 class="modal-footer">
-                                            {{book['bdesc']}}
-                                        </h6>
-                                    </div>
-                                </div>
-
-                                <!-- <div class="col-lg-1 offset-lg-1">
-                            <h6 class="modal-title font-weight-bold text-primary">
-                                {{book['bprice']}}
+                        <!-- <div class="col-lg-1 offset-lg-1">
+                            <h6 id="mahbookprice" class="modal-title font-weight-bold text-primary">
+                                {{one_book['bprice']}}
                             </h6>
                         </div> -->
 
-                                <div class="col-lg-1 offset-lg-3">
-                                    <div class="card shadow mb-4">
-                                        <button class="btn btn-primary btn-user btn-block" value="{{book['bid']}}" onclick="myfunction(this.value)">
-                                    Read
-                                </button>
-                                    </div>
-                                    <!-- <div class="card shadow mb-4">
-                                <a href="index" class="btn btn-primary btn-user btn-block" onclick="">
-                                    Add to Wishlist
-                                </a>
-                            </div> -->
+                    </div>
+                    <hr class="sidebar-divider">
+                    <div class="row text-center">
+                        <div class="col-lg-3 offset-lg-5">
+                            <form action="" class="user" id="formm">
+                                <div class="text-center">
+                                    <h6>You bought this book for
+                                        <div class="text-primary"> {{one_book['bprice']}} ETH</div>
+                                    </h6>
                                 </div>
 
+                                <br>
+                                <div class="form-group">
+
+                                    <select name="selecto" class="form-control" id="selectid" required>
+                                    <option value="" disabled selected> Select Loan Period</option>
+                                    <option value="{{one_book['bprice']}}-one" onclick="OneWeek(this.value)">1 week</option>
+                                    <option value="{{one_book['bprice']}}-two" onclick="TwoWeek(this.value)">2 week</option>
+                                    </select>
+                                </div>
+
+
+                                <!-- <input class="btn btn-primary btn-user btn-block" type="submit" value="Recharge"> -->
+                                <br>
+                                <!-- <br> -->
+                                <p id="godd1" class="text-center text-gray-800"></p>
+                                <p id="godd2" class="text-center text-primary"></p>
+                                <p id="godd3" class="text-center text-gray-800"></p>
+                                <hr>
+                                <!-- <input class="btn btn-primary btn-user btn-block" type="submit" value="List Now"> -->
+                            </form>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-3 offset-lg-5">
+                            <div class="card shadow mb-4">
+                                <button class="btn btn-primary btn-user btn-block" style="display: none;" id="mybutton" value="{{one_book['bid']}}" onclick="loan_now(this.value)">
+                                    List for Loan
+                                </button>
                             </div>
-                            <hr class="sidebar-divider"> {% endfor %}
-                            <!-- /.container-fluid -->
-
-                </div>
-                <!-- End of Main Content -->
-
-                <!-- Footer -->
-                <footer class="sticky-footer bg-white">
-                    <div class="container my-auto">
-                        <div class="copyright text-center my-auto">
-                            <span>Copyright &copy; Rohit 2021</span>
                         </div>
                     </div>
-                </footer>
-                <!-- End of Footer -->
+
+                    <!-- /.container-fluid -->
+
+                </div>
+
+                <!-- End of Main Content -->
 
             </div>
             <!-- End of Content Wrapper -->
@@ -266,13 +291,13 @@
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
+                            <span aria-hidden="true">×</span>
+                        </button>
                     </div>
-                    <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                    <div class="modal-body">Select"Logout" below if you are ready to end your current session.</div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <a class="btn btn-primary" href="login">Logout</a>
+                        <a class="btn btn-primary" href="../login">Logout</a>
                     </div>
                 </div>
             </div>
@@ -280,21 +305,20 @@
 
 
         <!-- Bootstrap core JavaScript-->
-        <script src="../static/vendor/jquery/jquery.min.js"></script>
-        <script src="../static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="../../static/vendor/jquery/jquery.min.js"></script>
+
+        <script type="text/javascript" src="../../static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
         <!-- Core plugin JavaScript-->
-        <script src="../static/vendor/jquery-easing/jquery.easing.min.js"></script>
+        <script type="text/javascript" src="../../static/vendor/jquery-easing/jquery.easing.min.js"></script>
 
 
-        <script src="../static/js/sb-admin-2.js"></script>
+        <script type="text/javascript" src="../../static/js/sb-admin-2.js"></script>
+        <script type="text/javascript" src="../../static/js/buy_list.js"></script>
 
-        <!-- Page level plugins -->
-        <script src="../static/vendor/chart.js/Chart.min.js"></script>
 
-        <!-- Page level custom scripts -->
-        <script src="../static/js/demo/chart-area-demo.js"></script>
-        <script src="../static/js/demo/chart-pie-demo.js"></script>
+
+
 </body>
 
 </html>

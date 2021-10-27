@@ -76,7 +76,7 @@
             <li class="nav-item">
                 <a class="nav-link" href="borrow_main">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>Lend</span></a>
+                    <span>Borrow</span></a>
             </li>
 
             <!-- Divider -->
@@ -193,10 +193,13 @@
                                 <input type="text" name='desc' class="form-control form-control-user" id="exampleFirstName" placeholder="Book Description" required>
                             </div>
                             <div class="form-group">
-                                <p>Upload book image : <input type="file" name="img" /> </p>
+                                <p>Upload book cover : <input type="file" name="img" required/> </p>
                             </div>
                             <div class="form-group">
-                                <input type="text" name='price' class="form-control form-control-user" id="setted_price" placeholder="Set Book Price" required>
+                                <p>Upload book pdf : <input type="file" name="pdf" required/> </p>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name='pricee' class="form-control form-control-user" id="setted_price" placeholder="Set Book Price" required>
                             </div>
                             <!-- <div class="text-center text-primary"> Select NFC Minting Speed </div>
 
@@ -209,17 +212,26 @@
                             <label for="defaultCheck2">
                                 Slow
                             </label> -->
-                            <br>
-                            <p id="ln1" class="text-center text-gray-800"></p>
-                            <p id="ln2" class="text-center text-primary"></p>
-                            <hr>
-                            <input class="btn btn-primary btn-user btn-block" type="submit" value="List book">{% endif %} {% if display%}
-                            <a class="btn btn-primary btn-user btn-block" href="all_listed_books">See all your listings</a>
-                            <a class="btn btn-primary btn-user btn-block" href="list_new">List another book</a> {% endif %}
-
-
+                            <h6 id="ln1" style="display: none;">Uploaded files scanned succuessfully. Ready to list <br> <br></h6>
+                            <input class="btn btn-primary btn-user btn-block" id="mainb" type="submit" value="List book now" style="display: none;">
 
                         </form>
+
+                        <a class="btn btn-primary btn-user btn-block" id="cont" href="#" onclick="checkBal('{{cur_balance}}')">Continue </a>
+                        <br><br>
+                        <h6 class="h6" id="ln2" class="text-primary" style="display: none;"> You don't have sufficient balance, <br> Current Balance : {{cur_balance}}</h6>
+                        <br>
+
+                        <div class="text-center" style="display: none;" id="cur_bal"> Current Balance : {{cur_balance}} </div>
+                        <br>
+                        <a class="btn btn-primary btn-user btn-block" id="walletsymbol" style="display: none;" href="mywallet">Recharge Wallet </a>
+                        <br><br>
+                        <span class="text-center" id="orsymbol" style="display: none;"> OR <br> <br></span>
+
+                        <a class="btn btn-primary btn-user btn-block" id="diff_price" href="#" style="display: none" onclick="setDifferentPrice()"> Set a different price</a> {% endif %} {% if display%}
+                        <a class="btn btn-primary btn-user btn-block" href="all_listed_books">See all your listings</a>
+                        <a class="btn btn-primary btn-user btn-block" href="list_new">List another book</a> {% endif %}
+
                     </div>
 
                 </div>
@@ -277,11 +289,9 @@
         <script src="../static/js/buy_list.js"></script>
 
         <!-- Page level plugins -->
-        <script src="../static/vendor/chart.js/Chart.min.js"></script>
+        <!-- <script src="../static/vendor/chart.js/Chart.min.js"></script>
 
-        <!-- Page level custom scripts -->
-        <script src="../static/js/demo/chart-area-demo.js"></script>
-        <script src="../static/js/demo/chart-pie-demo.js"></script>
+
 
 </body>
 

@@ -82,7 +82,7 @@
             <li class="nav-item">
                 <a class="nav-link" href="../borrow_main">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>Lend</span></a>
+                    <span>Borrow</span></a>
             </li>
 
             <!-- Divider -->
@@ -259,8 +259,8 @@
 
                     <div class="row">
                         <div class="col-lg-3 offset-lg-5">
-                            <div class="card shadow mb-4">
-                                <button class="btn btn-primary btn-user btn-block" style="display: none;" id="mybutton" value="{{one_book['bid']}}" onclick="loan_now(this.value)">
+                            <div>
+                                <button class="btn btn-primary btn-user btn-block" style="visibility: hidden;" id="mybutton" value="{{one_book['bid']}}" onclick="loan_now(this.value)">
                                     List for Loan
                                 </button>
                             </div>

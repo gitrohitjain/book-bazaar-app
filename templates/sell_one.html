@@ -151,16 +151,16 @@
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="library">
+                                <a class="dropdown-item" href="../library">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i> Library
                                 </a>
-                                <a class="dropdown-item" href="all_listed_books">
+                                <a class="dropdown-item" href="../all_listed_books">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i> My Listing
                                 </a>
-                                <a class="dropdown-item" href="all_borrowed">
+                                <a class="dropdown-item" href="../all_borrowed">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i> Borrowed
                                 </a>
-                                <a class="dropdown-item" href="mywallet">
+                                <a class="dropdown-item" href="../mywallet">
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i> Wallet
                                 </a>
                                 <a class="dropdown-item" href="#">
@@ -223,16 +223,16 @@
                     </div>
                     <hr class="sidebar-divider">
                     <div class="row text-center">
-                        <div class="col-lg-3 offset-lg-5 ">
+                        <div class="col-lg-3 offset-lg-5">
                             <form action="" class="user" id="formm">
 
                                 <div class="form-group">
 
                                     <input type="text" name='price' class="form-control form-control-user" id="setted_price" placeholder="Set selling price for book" required>
                                 </div>
-                                <div class="text-center text-primary"> Transaction speed </div>
+                                <!-- <div class="text-center text-primary"> Transaction speed </div> -->
 
-                                <input type="radio" id="defaultCheck1" name="speed" value="fast" onclick="SellOneUpdateFunction_Fast()" required>
+                                <!-- <input type="radio" id="defaultCheck1" name="speed" value="fast" onclick="SellOneUpdateFunction_Fast()" required>
                                 <label for="defaultCheck1">
                                     Fast 
                                 </label>
@@ -240,23 +240,23 @@
                                 <input type="radio" id="defaultCheck2" name="speed" value="slow" onclick="SellOneUpdateFunction_Slow()" required>
                                 <label for="defaultCheck2">
                                     Slow
-                                </label>
+                                </label> -->
 
-                                <!-- <input class="btn btn-primary btn-user btn-block " type="submit " value="Recharge "> -->
+                                <!-- <input class="btn btn-primary btn-user btn-block" type="submit" value="Recharge"> -->
                                 <br>
-                                <br>
+                                <!-- <br>
                                 <p id="godd1" class="text-center text-gray-800"></p>
                                 <p id="godd2" class="text-center text-primary"></p>
-                                <hr>
+                                <hr> -->
                                 <!-- <input class="btn btn-primary btn-user btn-block" type="submit" value="List Now"> -->
                             </form>
                         </div>
 
                     </div>
 
-                    <div class="row ">
-                        <div class="col-lg-3 offset-lg-5 ">
-                            <div class="card shadow mb-4 ">
+                    <div class="row">
+                        <div class="col-lg-3 offset-lg-5">
+                            <div class="card shadow mb-4">
                                 <button class="btn btn-primary btn-user btn-block" value="{{one_book['bid']}}" onclick="sell_now(this.value)">
                                     List Now
                                 </button>
@@ -277,24 +277,24 @@
         <!-- End of Page Wrapper -->
 
         <!-- Scroll to Top Button-->
-        <a class="scroll-to-top rounded " href="#page-top ">
-            <i class="fas fa-angle-up "></i>
+        <a class="scroll-to-top rounded" href="#page-top">
+            <i class="fas fa-angle-up"></i>
         </a>
 
         <!-- Logout Modal-->
-        <div class="modal fade " id="logoutModal " tabindex="-1 " role="dialog " aria-labelledby="exampleModalLabel " aria-hidden="true ">
-            <div class="modal-dialog " role="document ">
-                <div class="modal-content ">
-                    <div class="modal-header ">
-                        <h5 class="modal-title " id="exampleModalLabel ">Ready to Leave?</h5>
-                        <button class="close " type="button " data-dismiss="modal " aria-label="Close ">
-                            <span aria-hidden="true ">×</span>
+        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                    <div class="modal-body ">Select "Logout " below if you are ready to end your current session.</div>
-                    <div class="modal-footer ">
-                        <button class="btn btn-secondary " type="button " data-dismiss="modal ">Cancel</button>
-                        <a class="btn btn-primary " href="login ">Logout</a>
+                    <div class="modal-body">Select"Logout" below if you are ready to end your current session.</div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        <a class="btn btn-primary" href="login">Logout</a>
                     </div>
                 </div>
             </div>
@@ -302,16 +302,16 @@
 
 
         <!-- Bootstrap core JavaScript-->
-        <script src="../../static/js/jquery.min.js "></script>
+        <script src="../../static/vendor/jquery/jquery.min.js"></script>
 
-        <script type="text/javascript " src="../../static/vendor/bootstrap/js/bootstrap.bundle.min.js "></script>
+        <script type="text/javascript" src="../../static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
         <!-- Core plugin JavaScript-->
-        <script type="text/javascript " src="../../static/vendor/jquery-easing/jquery.easing.min.js "></script>
+        <script type="text/javascript" src="../../static/vendor/jquery-easing/jquery.easing.min.js"></script>
 
 
-        <script type="text/javascript " src="../../static/js/sb-admin-2.js "></script>
-        <script type="text/javascript " src="../../static/js/buy_list.js "></script>
+        <script type="text/javascript" src="../../static/js/sb-admin-2.js"></script>
+        <script type="text/javascript" src="../../static/js/buy_list.js"></script>
 
 
 
